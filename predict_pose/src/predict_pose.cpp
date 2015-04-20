@@ -34,13 +34,14 @@ public:
 
     old_est_pose = Vector3f::Zero();
     alpha = Vector4f::Zero();
+    old_sigma = MatrixXd::Zero(3,3);
 
-    old_sigma = MatrixXf::Zero(3,3);
+    est_sigma.data.resize(9);
 
     est_pose_pub = nh.advertise<geometry_msgs::Pose2D>("predict_pose",100);
     est_sigma_pub = nh.advertise<std_msgs::Float64MultiArray>("predict_pose_convariance",100);
 
-    ros::Rate loop_rate(10);
+    ros::Rate loop_rate(0.1);
   }
 
   void oldSigmaCallBack(
@@ -72,10 +73,10 @@ public:
   void calc(){
     alpha << 0.0f,0.0f,0.0f,0.0f;
 
-    MatrixXf G = MatrixXf::Zero(3,3);
-    MatrixXf V = MatrixXf::Zero(3,3);
-    MatrixXf M = MatrixXf::Zero(2,2);
-    MatrixXf sigma = MatrixXf::Zero(3,3);
+    MatrixXd G = MatrixXd::Zero(3,3);
+    MatrixXd V = MatrixXd::Zero(3,2);
+    MatrixXd M = MatrixXd::Zero(2,2);
+    MatrixXd sigma = MatrixXd::Zero(3,3);
 
     double delta_t = now.toSec() - old.toSec();
     double speed_per_angular = linear / angular;
@@ -98,8 +99,8 @@ public:
     0,                                 delta_t;
 
     M <<
-    alpha[1]*linear_square + alpha[2]*angular_square, 0,
-    0,                                                alpha[3]*linear_square + alpha[4]*angular_square;
+    alpha[0]*linear_square + alpha[1]*angular_square, 0,
+    0,                                                alpha[2]*linear_square + alpha[3]*angular_square;
 
     est_pose.x = old_est_pose[0];
     est_pose.y = old_est_pose[1];
@@ -123,7 +124,7 @@ public:
 
   void run(){
     while(ros::ok()){
-      calc();
+      PredictPose::calc();
       ros::spinOnce();
     }
   }
@@ -138,7 +139,7 @@ private:
   ros::Publisher est_pose_pub;
   ros::Publisher est_sigma_pub;
 
-  MatrixXf old_sigma;
+  MatrixXd old_sigma;
 
   geometry_msgs::Pose2D est_pose;
 
@@ -157,7 +158,7 @@ private:
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "PredictPose");
+    ros::init(argc, argv, "ekf_predict_pose");
     PredictPose predict_pose;
     predict_pose.run();
 
