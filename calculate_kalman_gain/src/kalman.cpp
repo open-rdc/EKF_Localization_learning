@@ -7,12 +7,15 @@
 #include <Eigen/LU>
 #include <iostream>
 #include <math.h>
-#include <messagefilters/subscrober.h>
-#include <messagefilters/sync_policies/approximate_time.h>
+#include <message_filters/subscriber.h>
+#include <message_filters/sync_policies/approximate_time.h>
+#include <complex>
 
 using namespace Eigen;
+ros::Publisher K_pub;
+ros::Publisher H_pub;
 
-void kalman (const std_msgs::Float64MultiArray& Sigma_t, const std_msgs::Float64MultiArray& mu_t, const std_msgs::Float64MultiArray& m_t)
+void kalman (const std_msgs::Float64MultiArray::ConstPtr& Sigma_t, const std_msgs::Float64MultiArray::ConstPtr& mu_t, const std_msgs::Float64MultiArray::ConstPtr& m_t)
 {
     //行列とベクトルの宣言
     MatrixXf Sigma(3,2);
@@ -22,48 +25,65 @@ void kalman (const std_msgs::Float64MultiArray& Sigma_t, const std_msgs::Float64
     MatrixXf K = MatrixXf::Zero(3, 3);
     Vector3f mu(0, 0, 0);
     Vector3f m(0, 0, 0);
-    Vector3f q(0, 0, 0);
+    float q=0;
+    int i,j;
+    std_msgs::Float64MultiArray K_p;
+    std_msgs::Float64MultiArray H_p;
 
-    for(int i = 0; i < 3; ++i)
+
+    for(i = 0; i < 3; ++i)
     {
-        mu(i) = *mu_t[i];
-        m(i) = *m_t[i];
-        for(int j = 0; j < 3; ++j)
+        mu(i) = mu_t -> data[i];
+        m(i) = m_t -> data[i];
+        for(j = 0; j < 3; ++j)
         {
             //Σへの代入
-            Sigma(i,j) = *Sigma_t[i][j];
+            Sigma(i,j) = Sigma_t -> data[i+j];
         }
     }
 
-    q = (m(0) - mu(0)) * (m(0) - mu(0)) + (m(1)-mu(1))*(m(1)-mu(1));
+    q = (m(0)-mu(0))*(m(0)-mu(0)) + (m(1)-mu(1))*(m(1)-mu(1));
    // z_h << sqrt(q), atan2(m(1)-mu(1),m(0)-mu(0))-mu(2), m(2);
     //Hの計算
     H <<
-    -(mx(0)-mu(0))/sqrt(q), -(m(1)-mu(1))/sqrt(q), 0,
+    -(m(0)-mu(0))/sqrt(q), -(m(1)-mu(1))/sqrt(q), 0,
     m(1)-mu(1)/q,           -(m(0)-mu(0))/q,      -1,
     0,                      0,                     0;
 
     S = H * Sigma * H.transpose() + Q;
     K = Sigma * H.transpose() * S.inverse();
 
-    K_pub.publish (K);
-    H_pub.publish (H);
+    for(i = 0; i<3; ++i)
+    {
+        for(j =0; j<3; ++j)
+        {
+            K_p.data[i+j] = K(i,j);
+            H_p.data[i+j] = H(i,j);
+        }
+    }
+
+    K_pub.publish (K_p);
+    H_pub.publish (H_p);
 
 }
 
 
 int main(int argc, char **argv)
 {
+ //   typedef message_filters::sync_policies::ApproximateTime<std_msgs::Float64MultiArray::ConstPtr,std_msgs::Float64MultiArray::ConstPtr,std_msgs::Float64MultiArray::ConstPtr> SyncPolicy;
     ros::init(argc, argv, "kalman");
     ros::NodeHandle n;
 
-    message_filters::Subscriber<std_msgs::Float64MultiArray> Sigma_t (n, "/Sigma_t", 10);
-    message_filters::Subscriber<std_msgs::Float64MultiArray> mu_t (n, "/mu_t", 10);
-    message_filters::Subscriber<std_msgs::Float64MultiArray> m_t (n, "/m_t", 10);
-    sync_.registerCallback(boost::bind(&kalman, this, _1, _2, _3));
 
-    ros::Publisher K_pub = n.advertise<std_msgs::Float64MultiArray>("/K", 1000);
-    ros::Publisher H_pub = n.advertise<std_msgs::Float64MultiArray>("/H", 1000);
+   //message_filters::Subscriber<std_msgs::Float64MultiArray::ConstPtr> Sigma_t (n, "/Sigma_t", 10);
+   //message_filters::Subscriber<std_msgs::Float64MultiArray::ConstPtr> mu_t (n, "/mu_t", 10);
+   //message_filters::Subscriber<std_msgs::Float64MultiArray::ConstPtr> m_t (n, "/m_t", 10);
+    
+   //message_filters::Synchronizer<SyncPolicy> sync_(SyncPolicy(10),Sigma_t,mu_t,m_t);
+   //sync_.registerCallback(boost::bind(&kalman, _1, _2, _3));
+
+    K_pub = n.advertise<std_msgs::Float64MultiArray>("/K", 1000);
+    H_pub = n.advertise<std_msgs::Float64MultiArray>("/H", 1000);
 
     ros::Rate loop_rate(10);
 

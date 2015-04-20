@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(EKF)
+project(calculate_kalman_gain)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -7,8 +7,10 @@ project(EKF)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
-  Eigen REQUIRED
+  cmake_modules
 )
+find_package(Eigen REQUIRED)
+add_definitions(${EIGEN_DEFINITIONS})
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -104,16 +106,16 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-# add_executable(EKF_node src/EKF_node.cpp)
+ add_executable(calculate_kalman_gain src/kalman.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(EKF_node EKF_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(EKF_node
-#   ${catkin_LIBRARIES}
-# )
+ target_link_libraries(calculate_kalman_gain
+   ${catkin_LIBRARIES}
+ )
 
 #############
 ## Install ##
