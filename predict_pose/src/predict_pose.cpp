@@ -23,7 +23,7 @@ public:
       "/sigma",10,&PredictPose::oldSigmaCallBack, this
     );
     old_est_pose_sub = nh.subscribe(
-      "/est_pos",10,&PredictPose::oldEstPosCallBack, this
+      "/est_pose",10,&PredictPose::oldEstPoseCallBack, this
     );
     cmd_vel_sub = nh.subscribe(
       "/icart_mini/cmd_vel",10,&PredictPose::cmd_velCallBack, this
@@ -54,7 +54,7 @@ public:
     }
   }
 
-  void oldEstPosCallBack(
+  void oldEstPoseCallBack(
     const geometry_msgs::Pose2D::ConstPtr& old_est_pose_ptr
   ){
     old_est_pose[0] = old_est_pose_ptr->x;
@@ -124,7 +124,7 @@ public:
 
   void run(){
     while(ros::ok()){
-      PredictPose::calc();
+      calc();
       ros::spinOnce();
     }
   }
