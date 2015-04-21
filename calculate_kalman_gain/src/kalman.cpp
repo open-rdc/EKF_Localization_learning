@@ -51,6 +51,10 @@ public:
     MatrixXf Q = MatrixXf::Identity(3, 3);
     MatrixXf S = MatrixXf::Zero(3, 3);
     MatrixXf K = MatrixXf::Zero(3, 3);
+    Sigma = MatrixXf::Zero(3,3);
+    mu = Vector3f::Zero();
+    mu = Vector3f::Zero();
+
     float q=0;
     int i,j;
     std_msgs::Float64MultiArray K_p;
@@ -98,9 +102,9 @@ private:
 
   ros::NodeHandle nh;
 
-  MatrixXf Sigma = MatrixXf::Zero(3,2);
-  Vector3f mu = Vector3f::Zero();
-  Vector3f m = Vector3f::Zero();
+  MatrixXf Sigma;
+  Vector3f mu;
+  Vector3f m;
 };
 
 int main(int argc, char **argv)
