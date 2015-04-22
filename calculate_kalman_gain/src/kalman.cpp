@@ -72,6 +72,9 @@ public:
     S = H * Sigma * H.transpose() + Q;
     K = Sigma * H.transpose() * S.inverse();
 
+    K_p.data.resize(9);
+    H_p.data.resize(9);
+
     for(i = 0; i<3; ++i)
     {
         for(j =0; j<3; ++j)
