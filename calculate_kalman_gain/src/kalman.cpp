@@ -1,5 +1,7 @@
 #include "ros/ros.h"
 #include "std_msgs/Float64MultiArray.h"
+#include "geometry_msgs/Twist.h"
+#include "geometry_msgs/Pose2D.h"
 #include <sstream>
 #include <Eigen/Core>
 #include <Eigen/Dense>
@@ -10,6 +12,7 @@
 #include <message_filters/subscriber.h>
 #include <message_filters/sync_policies/approximate_time.h>
 #include <complex>
+
 
 using namespace Eigen;
 
@@ -34,16 +37,16 @@ public:
     }
   }
 
-  void mu_tCallBack(const std_msgs::Float64MultiArray::ConstPtr& mu_t){
-    for(int i=0; i<3; i++){
-      mu(i) = mu_t->data[i];
-    }
+  void mu_tCallBack(const geometry_msgs::Pose2D::ConstPtr& mu_t){
+      mu(0) = mu_t->x;
+      mu(1) = mu_t->y;
+      mu(2) = mu_t->theta;
   }
 
-  void m_tCallBack(const std_msgs::Float64MultiArray::ConstPtr& m_t){
-    for(int i=0; i<3; i++){
-      m(i) = m_t->data[i];
-    }
+  void m_tCallBack(const geometry_msgs::Pose2D::ConstPtr& m_t){
+      m(0) = m_t->x;
+      m(1) = m_t->y;
+      m(2) = m_t->theta;
   }
 
   void calc(){
@@ -51,6 +54,10 @@ public:
     MatrixXf Q = MatrixXf::Identity(3, 3);
     MatrixXf S = MatrixXf::Zero(3, 3);
     MatrixXf K = MatrixXf::Zero(3, 3);
+    Sigma = MatrixXf::Zero(3,3);
+    mu = Vector3f::Zero();
+    mu = Vector3f::Zero();
+
     float q=0;
     int i,j;
     std_msgs::Float64MultiArray K_p;
@@ -66,6 +73,9 @@ public:
 
     S = H * Sigma * H.transpose() + Q;
     K = Sigma * H.transpose() * S.inverse();
+
+    K_p.data.resize(9);
+    H_p.data.resize(9);
 
     for(i = 0; i<3; ++i)
     {
@@ -98,9 +108,9 @@ private:
 
   ros::NodeHandle nh;
 
-  MatrixXf Sigma = MatrixXf::Zero(3,2);
-  Vector3f mu = Vector3f::Zero();
-  Vector3f m = Vector3f::Zero();
+  MatrixXf Sigma;
+  Vector3f mu;
+  Vector3f m;
 };
 
 int main(int argc, char **argv)
