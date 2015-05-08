@@ -1,5 +1,7 @@
 #include "ros/ros.h"
 #include "std_msgs/Float64MultiArray.h"
+#include "geometry_msgs/Twist.h"
+#include "geometry_msgs/Pose2D.h"
 #include <sstream>
 #include <Eigen/Core>
 #include <Eigen/Dense>
@@ -35,16 +37,16 @@ public:
     }
   }
 
-  void mu_tCallBack(const std_msgs::Float64MultiArray::ConstPtr& mu_t){
-    for(int i=0; i<3; i++){
-      mu(i) = mu_t->data[i];
-    }
+  void mu_tCallBack(const geometry_msgs::Pose2D::ConstPtr& mu_t){
+      mu(0) = mu_t->x;
+      mu(1) = mu_t->y;
+      mu(2) = mu_t->theta;
   }
 
-  void m_tCallBack(const std_msgs::Float64MultiArray::ConstPtr& m_t){
-    for(int i=0; i<3; i++){
-      m(i) = m_t->data[i];
-    }
+  void m_tCallBack(const geometry_msgs::Pose2D::ConstPtr& m_t){
+      m(0) = m_t->x;
+      m(1) = m_t->y;
+      m(2) = m_t->theta;
   }
 
   void calc(){
