@@ -20,10 +20,10 @@ class PredictPose{
 public:
   PredictPose(){
     old_est_sigma_sub = nh.subscribe(
-      "/sigma",10,&PredictPose::oldSigmaCallBack, this
+      "/robot_pose_convriance",10,&PredictPose::oldSigmaCallBack, this
     );
     old_est_pose_sub = nh.subscribe(
-      "/est_pose",10,&PredictPose::oldEstPoseCallBack, this
+      "/robot_pose_estimate",10,&PredictPose::oldEstPoseCallBack, this
     );
     cmd_vel_sub = nh.subscribe(
       "/icart_mini/cmd_vel",10,&PredictPose::cmd_velCallBack, this
@@ -38,8 +38,8 @@ public:
 
     est_sigma.data.resize(9);
 
-    est_pose_pub = nh.advertise<geometry_msgs::Pose2D>("predict_pose",100);
-    est_sigma_pub = nh.advertise<std_msgs::Float64MultiArray>("predict_pose_convariance",100);
+    est_pose_pub = nh.advertise<geometry_msgs::Pose2D>("/predict_pose",100);
+    est_sigma_pub = nh.advertise<std_msgs::Float64MultiArray>("/predict_pose_convariance",100);
 
     ros::Rate loop_rate(0.1);
   }
