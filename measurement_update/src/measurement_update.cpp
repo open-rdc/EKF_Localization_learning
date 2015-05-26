@@ -67,7 +67,7 @@ class MeasurementUpdate{
 
 		void hCallBack(const std_msgs::Float64MultiArray::ConstPtr& h_t){
 			for (int i=0; i<3; i++){
-				for (int j=0; j<3; i++){
+				for (int j=0; j<3; j++){
 					h(i,j) = h_t->data[i+j];
 				}
 			}
