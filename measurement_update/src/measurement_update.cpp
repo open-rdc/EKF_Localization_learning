@@ -60,15 +60,15 @@ class MeasurementUpdate{
 		void kCallBack(const std_msgs::Float64MultiArray::ConstPtr& k_t){
 			for (int i=0; i< 3; i++){
 				for (int j=0; j<3; j++){
-					k(i) = k_t->data[i];
+					k(i,j) = k_t->data[i+j];
 				}
 			}
 		}
 
 		void hCallBack(const std_msgs::Float64MultiArray::ConstPtr& h_t){
 			for (int i=0; i<3; i++){
-				for (int j=0; j<3; i++){
-					h(i) = h_t->data[i];
+				for (int j=0; j<3; j++){
+					h(i,j) = h_t->data[i+j];
 				}
 			}
 		}
