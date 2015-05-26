@@ -79,7 +79,7 @@ public:
     MatrixXd sigma = MatrixXd::Zero(3,3);
 
     double delta_t = now.toSec() - old.toSec();
-    double speed_per_angular = linear / angular;
+    double speed_per_angular;
     double cos_theta = cos(old_est_pose[2]);
     double sin_theta = sin(old_est_pose[2]);
     double cos_theta_d = cos(old_est_pose[2] + angular * delta_t);
@@ -88,6 +88,13 @@ public:
     double angular_square = angular * angular;
     double linear_square = linear * linear;
 
+    if( angular != 0 ){
+      speed_per_angular = linear / angular;
+    }
+    else{
+      speed_per_angular = 0;
+    }
+    
     G <<
     1,  0,  -(speed_per_angular) * cos_theta + speed_per_angular * cos_theta_d,
     0,  1,  -(speed_per_angular) * sin_theta + speed_per_angular * sin_theta_d,
