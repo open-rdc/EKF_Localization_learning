@@ -20,7 +20,7 @@ class Noisedata{
 
       state = Vector3f::Zero();
 
-      robot_noise_state_pub = nh.advertise<geometry_msgs::Pose2D>("robot_noise_state", 1000);
+      robot_noise_state_pub = nh.advertise<geometry_msgs::Pose2D>("robot_pose_added_noise", 1000);
 
       ros::Rate loop_rate(10);
     }

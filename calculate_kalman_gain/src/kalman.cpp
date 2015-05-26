@@ -19,12 +19,12 @@ using namespace Eigen;
 class Kalman{
 public:
   Kalman(){
-    Sigma_t_sub = nh.subscribe("/Sigma_t",10, &Kalman::sigma_tCallBack, this);
-    mu_t_sub = nh.subscribe("/mu_t",10, &Kalman::mu_tCallBack, this);
-    m_t_sub = nh.subscribe("/m_t",10, &Kalman::m_tCallBack, this);
+    Sigma_t_sub = nh.subscribe("/predict_pose_convariance",10, &Kalman::sigma_tCallBack, this);
+    mu_t_sub = nh.subscribe("/predict_pose",10, &Kalman::mu_tCallBack, this);
+    m_t_sub = nh.subscribe("/robot_pose_added_noise",10, &Kalman::m_tCallBack, this);
 
-    K_pub = nh.advertise<std_msgs::Float64MultiArray>("/K", 1000);
-    H_pub = nh.advertise<std_msgs::Float64MultiArray>("/H", 1000);
+    K_pub = nh.advertise<std_msgs::Float64MultiArray>("/kalman_gain", 1000);
+    H_pub = nh.advertise<std_msgs::Float64MultiArray>("/jacobian", 1000);
 
     ros::Rate loop_rate(10);
   }

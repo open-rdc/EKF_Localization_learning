@@ -21,14 +21,14 @@ using namespace Eigen;
 class MeasurementUpdate{
 	public:
 		MeasurementUpdate(){
-			z_t_sub = nh.subscribe("z_t",10,&MeasurementUpdate::z_tCallBack, this);
-			mu_t_bar_sub = nh.subscribe("mu_t_bar",10, &MeasurementUpdate::mu_t_barCallBack, this);
-			sigma_t_bar_sub = nh.subscribe("sigma_t_bar",10, &MeasurementUpdate::sigma_t_barCallBack, this);
-			k_sub = nh.subscribe("k",10,&MeasurementUpdate::kCallBack, this);
-			h_sub = nh.subscribe("h",10,&MeasurementUpdate::hCallBack, this);
+			z_t_sub = nh.subscribe("robot_pose_added_noise",10,&MeasurementUpdate::z_tCallBack, this);
+			mu_t_bar_sub = nh.subscribe("predict_pose",10, &MeasurementUpdate::mu_t_barCallBack, this);
+			sigma_t_bar_sub = nh.subscribe("predict_pose_convariance",10, &MeasurementUpdate::sigma_t_barCallBack, this);
+			k_sub = nh.subscribe("kalman_gain",10,&MeasurementUpdate::kCallBack, this);
+			h_sub = nh.subscribe("jacobian",10,&MeasurementUpdate::hCallBack, this);
 
-			mu_pub = nh.advertise<geometry_msgs::Pose2D>("/mu",1000);
-			sigma_pub = nh.advertise<std_msgs::Float64MultiArray>("sigma",1000);
+			mu_pub = nh.advertise<geometry_msgs::Pose2D>("/robot_pose_estimate",1000);
+			sigma_pub = nh.advertise<std_msgs::Float64MultiArray>("/robot_pose_convariance",1000);
 
 			k = MatrixXf::Zero(3, 3);
 			h = MatrixXf::Zero(3, 3);
