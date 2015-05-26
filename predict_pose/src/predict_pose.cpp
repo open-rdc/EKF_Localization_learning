@@ -38,8 +38,8 @@ public:
 
     est_sigma.data.resize(9);
 
-    est_pose_pub = nh.advertise<geometry_msgs::Pose2D>("predict_pose",100);
-    est_sigma_pub = nh.advertise<std_msgs::Float64MultiArray>("predict_pose_convariance",100);
+    est_pose_pub = nh.advertise<geometry_msgs::Pose2D>("/predict_pose",100);
+    est_sigma_pub = nh.advertise<std_msgs::Float64MultiArray>("/predict_pose_convariance",100);
 
     ros::Rate loop_rate(0.1);
   }
